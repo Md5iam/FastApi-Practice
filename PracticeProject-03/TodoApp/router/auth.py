@@ -9,6 +9,14 @@ from models import Users
 from fastapi.security import OAuth2PasswordRequestForm , OAuth2PasswordBearer
 from jose import jwt , JWTError
 
+
+
+# User registers → password hashed → stored in DB
+#
+# User logs in → password checked → JWT token created
+#
+# User sends token → token verified → user fetched
+
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
@@ -26,6 +34,7 @@ class createUserRequest(BaseModel):
     last_name : str
     password : str
     role : str
+    phone_number : str
 
 class Token(BaseModel):
     access_token: str
@@ -77,7 +86,8 @@ async def create_user(db : db_dependency, userRequest : createUserRequest):
         last_name = userRequest.last_name,
         role = userRequest.role,
         hashed_password = bcrypt_context.hash(userRequest.password),
-        is_active = True
+        is_active = True,
+        phone_number = userRequest.phone_number
     )
     db.add(tmpUserModel)
     db.commit()
